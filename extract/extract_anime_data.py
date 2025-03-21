@@ -26,7 +26,7 @@ def extract(anime_id):
                                 'studios_name', 'approved' ]]
             
             csv_file_exists = os.path.exists('anime_data.csv')
-            df.to_csv('anime_data.csv', mode='a', index=True, header=not csv_file_exists)
+            df.to_csv('anime_data.csv', mode='a', index=False, header=not csv_file_exists)
 
             return print(df)
         
