@@ -78,21 +78,22 @@ def transform(i):
 
     data = extract(i)
     normalized_data = pd.json_normalize(data)
-    
-    
-
+ 
     # pd.isna() checks if the value is none
     normalized_data.dropna(subset=['title_english', 'title'], how='all', inplace=True) #drop the row if *both* are None 
     normalized_data['title_english'] = normalized_data.apply(
         lambda row: row['title'] if pd.isna(row['title_english']) else row['title_english'], axis=1
     )
 
+    # genres organized in 3
+    normalized_data['genre_1'] = normalized_data['genres'].apply(lambda genre: genre[0]['name'] if len(genre) > 0 else None).str.lower()
+    normalized_data['genre_2'] = normalized_data['genres'].apply(lambda genre: genre[1]['name'] if len(genre) > 1 else None).str.lower()
+    normalized_data['genre_3'] = normalized_data['genres'].apply(lambda genre: genre[2]['name'] if len(genre) > 2 else None).str.lower()
+
     # manipulate the naming convention
     normalized_data['studio'] = (
         normalized_data['studios'].apply(
-        lambda studio: studio[0]['name'] if isinstance(studio, list) and len(studio) > 0 else 'None'
-    )
-    .str.lower()
+            lambda studio: studio[0]['name'] if isinstance(studio, list) and len(studio) > 0 else 'None').str.lower()
     )
     normalized_data[['trailer_link', 'validated', 'title', 'aired_from', 'aired_to']] = \
     normalized_data[['trailer.url', 'approved', 'title_english', 'aired.from', 'aired.to']]
@@ -108,9 +109,10 @@ def transform(i):
     if 'duration' in normalized_data.columns:
         normalized_data['duration'] = normalized_data['duration'].apply(lambda x: 'None' if pd.isna(x) else convert_to_minutes(x))
     
+
     
     #all elements in dataframe
-    df = normalized_data[['title', 'aired_from', 'aired_to', 'episodes', 'duration', 'score', 'trailer_link', 'studio', 'validated']]
+    df = normalized_data[['title', 'aired_from', 'aired_to', 'episodes', 'duration', 'score', 'genre_1', 'genre_2', 'genre_3', 'trailer_link', 'studio', 'validated']]
     return print(df)
 
     
