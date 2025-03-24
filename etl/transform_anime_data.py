@@ -1,5 +1,5 @@
 
-import requests
+import logging
 import pandas as pd
 
 from clean_functions import convert_to_minutes
@@ -13,55 +13,78 @@ from extract_anime_data import extract
 def transform(i):
     """transform to showcase the data based on the KPI """
 
-    data = extract(i)
-    normalized_data = pd.json_normalize(data)
- 
-    # pd.isna() checks if the value is none
-    normalized_data.dropna(subset=['title_english', 'title'], how='all', inplace=True) #drop the row if *both* are None 
+    try:
+        logging.info(f'start extraction')
+        data = extract(i)
+        if data:
+            logging.info(f'successful data extraction')
+        else:
+            logging.error(f'extraction from API failed')
+
+    except Exception as e:
+        logging.critical(f'an error occured in the extraction code, {e}')
     
-    normalized_data['title_english'] = normalized_data.apply(
-        lambda row: row['title'] if pd.isna(row['title_english']) else row['title_english'], axis=1
-    )
+    finally:
+        logging.info(f'end extraction')
 
-    # genres organized in 3
-    for i in range(1, 4):
-        normalized_data[f'genre_{i}'] = normalized_data['genres'].apply(lambda genre: clean_genre(genre, i-1))
-    # normalized_data['genre_1'] = normalized_data['genres'].apply(lambda genre: clean_genre(genre, 0))
-    # normalized_data['genre_2'] = normalized_data['genres'].apply(lambda genre: clean_genre(genre, 1))
-    # normalized_data['genre_3'] = normalized_data['genres'].apply(lambda genre: clean_genre(genre, 2))
 
-    # manipulate the naming convention
-    normalized_data['studio'] = normalized_data['studios'].apply(lambda studio: clean_studio(studio))
+
+    try:
+        logging.info(f'start transformation')
+        normalized_data = pd.json_normalize(data)
     
-    normalized_data[['trailer_link', 'validated', 'title', 'aired_from', 'aired_to']] = \
-        normalized_data[['trailer.url', 'approved', 'title_english', 'aired.from', 'aired.to']]
-    
-    normalized_data['title'] = normalized_data['title'].apply(clean_title) # no lambda because of a row is none, code will drop the entire row
-    
-    # only use the first 10 characters of the string
-    normalized_data[['aired_from', 'aired_to']] = normalized_data[['aired_from', 'aired_to']].apply(lambda x: x.str[:10])
+        # pd.isna() checks if the value is none
+        normalized_data.dropna(subset=['title_english', 'title'], how='all', inplace=True) # drop the row if *both* are None 
 
-    #handle episodes column data cleaning
-    normalized_data['episodes'] = normalized_data['episodes'].apply(lambda x: None if pd.isna(x) else int(x))
+        normalized_data['title_english'] = normalized_data.apply(
+            lambda row: row['title'] if pd.isna(row['title_english']) else row['title_english'], axis=1
+        )
 
-    # clean data in duration column
-    if 'duration' in normalized_data.columns:
-        normalized_data['duration'] = normalized_data['duration'].apply(lambda x: None if pd.isna(x) else convert_to_minutes(x))
-    
-    # remove row if aired_from is None
-    normalized_data.dropna(subset=['aired_from'], how='all', inplace=True)
+        # genres organized in 3
+        for i in range(1, 4):
+            normalized_data[f'genre_{i}'] = normalized_data['genres'].apply(lambda genre: clean_genre(genre, i-1))
 
-    
-    #all elements in dataframe (and start from index + 1)
-    df = normalized_data[['title', 'aired_from', 'aired_to', 'episodes', 'duration', 'score', 'genre_1', 'genre_2', 'genre_3', 'trailer_link', 'studio', 'validated']]
-    df.index = df.index + 1
+        # manipulate the naming convention
+        normalized_data['studio'] = normalized_data['studios'].apply(lambda studio: clean_studio(studio))
 
-    return df.to_csv('test.csv')
+        normalized_data[['trailer_link', 'validated', 'title', 'aired_from', 'aired_to']] = \
+            normalized_data[['trailer.url', 'approved', 'title_english', 'aired.from', 'aired.to']]
 
+        normalized_data['title'] = normalized_data['title'].apply(clean_title) # no lambda because of a row is none, code will drop the entire row
+
+        # only use the first 10 characters of the string
+        normalized_data[['aired_from', 'aired_to']] = normalized_data[['aired_from', 'aired_to']].apply(lambda x: x.str[:10])
+
+        #handle episodes column data cleaning
+        normalized_data['episodes'] = normalized_data['episodes'].apply(lambda x: None if pd.isna(x) else int(x))
+
+        # clean data in duration column
+        if 'duration' in normalized_data.columns:
+            normalized_data['duration'] = normalized_data['duration'].apply(lambda x: None if pd.isna(x) else convert_to_minutes(x))
+        else:
+            logging.error(f'no duration column was found')
+        # remove row if aired_from is None
+        normalized_data.dropna(subset=['aired_from'], how='all', inplace=True)
+
+        # Score rounded to 1 digit (ex: 9.50 -> 9.5)
+        normalized_data['score'] = round(normalized_data['score'], 1)
+
+        #all elements in dataframe (and start from index + 1)
+        df = normalized_data[['title', 'aired_from', 'aired_to', 'episodes', 'duration', 'score', 'genre_1', 'genre_2', 'genre_3', 'trailer_link', 'studio', 'validated']]
+        df.index = df.index + 1
+
+        logging.info(f'successful data transformation')
+        return df.to_csv('test.csv')
+
+    except Exception as e:
+        logging.critical(f'error: {e}')
+
+    finally:
+        logging.info(f'end transformation')
     
 
 if __name__ == "__main__":
     """runs the function locally merely if this file is run"""
 
-    transform(193)
+    transform(295)
 
