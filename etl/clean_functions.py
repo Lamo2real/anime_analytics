@@ -45,7 +45,6 @@ def convert_to_minutes(duration):
 
             return total_minutes 
 
-
         else:
             logging.warning(f'duration format wasnt recognized: {duration}. 0 was returned')
             return 0

@@ -1,6 +1,8 @@
 
 import logging
 import pandas as pd
+import time
+
 
 from clean_functions import convert_to_minutes
 from clean_functions import clean_title
@@ -11,7 +13,7 @@ from extract_anime_data import extract
 
 
 def transform(i):
-    """transform to showcase the data based on the KPI """
+    """transform to showcase the data based on the KPI"""
 
     try:
         logging.info(f'start extraction')
@@ -26,7 +28,6 @@ def transform(i):
     
     finally:
         logging.info(f'end extraction')
-
 
 
     try:
@@ -47,8 +48,8 @@ def transform(i):
         # manipulate the naming convention
         normalized_data['studio'] = normalized_data['studios'].apply(lambda studio: clean_studio(studio))
 
-        normalized_data[['trailer_link', 'validated', 'title', 'aired_from', 'aired_to']] = \
-            normalized_data[['trailer.url', 'approved', 'title_english', 'aired.from', 'aired.to']]
+        normalized_data[['id', 'trailer_link', 'validated', 'title', 'aired_from', 'aired_to']] = \
+            normalized_data[['mal_id', 'trailer.url', 'approved', 'title_english', 'aired.from', 'aired.to']]
 
         normalized_data['title'] = normalized_data['title'].apply(clean_title) # no lambda because of a row is none, code will drop the entire row
 
@@ -63,6 +64,7 @@ def transform(i):
             normalized_data['duration'] = normalized_data['duration'].apply(lambda x: None if pd.isna(x) else convert_to_minutes(x))
         else:
             logging.error(f'no duration column was found')
+        
         # remove row if aired_from is None
         normalized_data.dropna(subset=['aired_from'], how='all', inplace=True)
 
@@ -70,14 +72,30 @@ def transform(i):
         normalized_data['score'] = round(normalized_data['score'], 1)
 
         #all elements in dataframe (and start from index + 1)
-        df = normalized_data[['title', 'aired_from', 'aired_to', 'episodes', 'duration', 'score', 'genre_1', 'genre_2', 'genre_3', 'trailer_link', 'studio', 'validated']]
+        df = normalized_data[['id', 'title', 'aired_from', 'aired_to', 'episodes', 'duration', 'score', 'genre_1', 'genre_2', 'genre_3', 'trailer_link', 'studio', 'validated']]
         df.index = df.index + 1
 
-        logging.info(f'successful data transformation')
-        return df.to_csv('test.csv')
+        # deduplication section
+        anime_csv = 'anime_dataframe.csv'
+        try:
+            if pd.io.common.file_exists(anime_csv):
+                df_existing = pd.read_csv(anime_csv)
+                df_combined = pd.concat([df_existing, df], ignore_index=True) # ignore incremental id
+                df_combined.drop_duplicates(subset=['id', 'title'], inplace=True) # inplace indicates that it modifies the existing dataframe and doesnt create a new one
+            else:
+                df_combined = df # merely if no existing data is true
+
+        except Exception as e:
+            logging.error(f'could not read or join the CSV: {e}')
+            df_combined = df # just in case...
+        
+        # making sure the csv is updated based on new data (deduplicated)
+        df_combined.to_csv(anime_csv, index=False)
+
+        logging.info(f'successful data transformation for page {i}')
 
     except Exception as e:
-        logging.critical(f'error: {e}')
+        logging.error(f'error: {e}')
 
     finally:
         logging.info(f'end transformation')
@@ -86,5 +104,8 @@ def transform(i):
 if __name__ == "__main__":
     """runs the function locally merely if this file is run"""
 
-    transform(295)
+    # transform(1)
+    for i in range(1, 5):
+        transform(i)
+        time.sleep(3)
 

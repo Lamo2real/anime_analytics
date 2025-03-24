@@ -1,6 +1,7 @@
 
 import requests
 import logging
+import boto3
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,6 +26,7 @@ def extract(page_number):
 
             if not json_data['data']:
                 logging.error(f'you have reached the end')
+                return {'continue': False}
                 
             else:
                 logging.info(f'data was found')
