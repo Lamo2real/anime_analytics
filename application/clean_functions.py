@@ -12,7 +12,7 @@ def remove_emojis(text):
 
     return emoji.replace_emoji(text, replace='')
 
-def convert_to_minutes(duration):
+def convert_to_minutes(duration, page):
     """convert hours & minutes to integers in minutes"""
 
     try:
@@ -46,11 +46,11 @@ def convert_to_minutes(duration):
             return total_minutes 
 
         else:
-            logging.warning(f'duration format wasnt recognized: {duration}. 0 was returned')
-            return 0
+            logging.warning(f'duration format wasnt recognized: {duration}. None was returned on page: {page}')
+            return None
     
     except Exception as e:
-        logging.critical(f'something else went wrong: {e}')
+        logging.warning(f'something else went wrong: {e}')
     
 
 def clean_title(text):
