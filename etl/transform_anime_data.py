@@ -2,6 +2,7 @@
 import logging
 import pandas as pd
 import time
+import boto3
 
 
 from clean_functions import convert_to_minutes
@@ -10,6 +11,8 @@ from clean_functions import clean_genre
 from clean_functions import clean_studio
 
 from extract_anime_data import extract
+
+from append_to_csv import csv_logic
 
 
 def transform(i):
@@ -72,25 +75,15 @@ def transform(i):
         normalized_data['score'] = round(normalized_data['score'], 1)
 
         #all elements in dataframe (and start from index + 1)
-        df = normalized_data[['id', 'title', 'aired_from', 'aired_to', 'episodes', 'duration', 'score', 'genre_1', 'genre_2', 'genre_3', 'trailer_link', 'studio', 'validated']]
+        df = normalized_data[[
+            'id', 'title', 'aired_from',
+            'aired_to', 'episodes', 'duration',
+            'score', 'genre_1', 'genre_2', 'genre_3',
+            'trailer_link', 'studio', 'validated'
+            ]]
         df.index = df.index + 1
 
-        # deduplication section
-        anime_csv = 'anime_dataframe.csv'
-        try:
-            if pd.io.common.file_exists(anime_csv):
-                df_existing = pd.read_csv(anime_csv)
-                df_combined = pd.concat([df_existing, df], ignore_index=True) # ignore incremental id
-                df_combined.drop_duplicates(subset=['id', 'title'], inplace=True) # inplace indicates that it modifies the existing dataframe and doesnt create a new one
-            else:
-                df_combined = df # merely if no existing data is true
-
-        except Exception as e:
-            logging.error(f'could not read or join the CSV: {e}')
-            df_combined = df # just in case...
-        
-        # making sure the csv is updated based on new data (deduplicated)
-        df_combined.to_csv(anime_csv, index=False)
+        csv_logic(df)
 
         logging.info(f'successful data transformation for page {i}')
 
