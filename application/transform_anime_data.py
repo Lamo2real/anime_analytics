@@ -38,7 +38,6 @@ def transform(event, context):
         logging.error(f'an error occured in the extraction code on page: {page}, {e}')
         
     finally:
-        time.sleep(3)
         logging.info(f'end extraction')
 
 
