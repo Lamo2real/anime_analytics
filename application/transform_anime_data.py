@@ -1,21 +1,17 @@
 
 import logging
 import pandas as pd
-import time
 import os
-from dotenv import load_dotenv
 
 from pd_data_structure import enhance_structure
 from extract_anime_data import extract
 from append_to_csv import csv_logic
 
-load_dotenv()
-
 def transform(event, context):
     """transform to showcase the data based on the KPI"""
 
-    bucket_name = os.getenv('BUCKET_NAME')
-    s3_key_path = os.getenv('S3_KEY_PATH')
+    bucket_name = os.environ['BUCKET_NAME'] #referring to lambda environment variables
+    s3_key_path = os.environ['S3_KEY_PATH'] #referring to lambda environment variables
     page = event.get('page', 1) #takes page if it exists else 1
     
     try:
