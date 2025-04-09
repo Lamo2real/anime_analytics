@@ -27,14 +27,14 @@ resource "aws_s3_bucket_lifecycle_configuration" "anime_state_lifecycle" {
   bucket = aws_s3_bucket.infra_state.id
 
   rule {
-    id = "terraform-states"
+    id     = "terraform-states"
     status = "Enabled"
 
     filter {
       prefix = "infra/"
     }
     transition {
-      days = 90
+      days          = 90
       storage_class = "STANDARD_IA"
     }
   }

@@ -71,8 +71,9 @@ def clean_title(text):
 
 def clean_genre(genre, index):
     """take the genre if it exists and make it lower case else None"""
-
-    return genre[index]['name'].lower() if len(genre) > index else None
+    studio_name = genre[index]['name'].lower() if len(genre) > index else None
+    studio_id = genre[index]['mal_id'] if len(genre) > index else None
+    return studio_name, studio_id
 
 def clean_studio(studio):
     """return correlated data if the studio exists in a list and is larger than 0 indexes"""

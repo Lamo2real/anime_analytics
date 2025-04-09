@@ -16,11 +16,12 @@ def enhance_structure(dataset, page):
         # genres organized in 3
         for i in range(1, 4):
             dataset[f'genre_{i}'] = dataset['genres'].apply(lambda genre: clean_genre(genre, i-1))
+            dataset[f'genre_anime_id_{i}'] = dataset['genres'].apply(lambda genre: clean_genre(genre, i-1))
 
         # manipulate the naming convention
         dataset['studio'] = dataset['studios'].apply(lambda studio: clean_studio(studio))
 
-        dataset[['id', 'trailer_link', 'validated', 'title', 'aired_from', 'aired_to']] = \
+        dataset[['anime_id', 'trailer_link', 'validated', 'title', 'aired_from', 'aired_to']] = \
             dataset[['mal_id', 'trailer.url', 'approved', 'title_english', 'aired.from', 'aired.to']]
 
         dataset['title'] = dataset['title'].apply(clean_title) # no lambda because of a row is none, code will drop the entire row
@@ -45,10 +46,11 @@ def enhance_structure(dataset, page):
 
         #all elements in dataframe (and start from index + 1)
         df = dataset[[
-            'id', 'title', 'aired_from',
+            'anime_id', 'title', 'aired_from',
             'aired_to', 'episodes', 'duration',
             'score', 'genre_1', 'genre_2', 'genre_3',
-            'trailer_link', 'studio', 'validated'
+            'genre_anime_id_1', 'genre_anime_id_2', 'genre_anime_id_3'
+            'trailer_link', 'studio', 'studio_id', 'validated'
             ]]
         df.index = df.index + 1
 

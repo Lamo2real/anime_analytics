@@ -1,0 +1,91 @@
+
+name: Deploy Infrastructure & Extraction Script
+
+on:
+    push:
+        branches: 
+            - prod
+
+
+jobs:
+    zip-lambda:
+        runs-on: ubuntu-24.04
+        
+        defaults:
+            run:
+                working-directory: application
+
+        steps:
+            - name: Use GitHub Repo
+              uses: actions/checkout@v4
+
+            - name: delete zip if exists
+              run: rm --force extract_load_script.zip
+
+            - name: install dependencies
+              run: |
+                mkdir --parents temp_package
+                pip install --recursive requirements.txt --target temp_package/
+            
+            - name: copy all python files to temporary directory
+              run: cp --recursive script/. --target temp_folder/
+
+            - name: zip the temporary folder
+              run: zip extract_load_script.zip temp_package/.
+
+            - name: delete the temp folder & clean workstation
+              run: rm --recursive --force temp_package
+
+            - name: Load the zip file to GitHub artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                name: lambda-zip-artifact
+                path: application/extract_load_script.zip
+
+            
+    deploy-infrastructure:
+        runs-on: ubuntu-24.04
+        
+        defaults:
+            run:
+                working-directory: infrastructure/data_collection_infra
+
+        steps:
+            - name: use GitHub repo
+              uses: actions/checkout@v4
+
+            - name: download zipped lambda code from GitHub Artifacts
+              uses: actions/download-artifact@v4
+              with:
+                name: lambda-zip-artifact
+                path: application/
+
+            - name: configure aws credentials
+              uses: aws-actions/configure-aws-credentials@v3 #stores it in a temporary manner
+              with:
+                aws-access-key-id: ${{secrets.DEVELOPER_ACCESS_KEY}}
+                aws-secret-access-key: ${{secrets.DEVELOPER_SECRET_ACCESS_KEY}}
+                aws-region: eu-central-1
+
+            - name: setup terraform
+              uses: hashicorp/setup-terraform@v3
+              with:
+                terraform_version: 1.9.5
+            
+            - name: format the terraform configuration code
+              run: terraform fmt --recursive
+            
+            - name: initialize therraform 
+              run: terraform init
+
+            - name: check the syntax of the terraform code
+              run: terraform validate
+
+            - name: infrastructure setup logic 
+              run: terraform plan
+
+            - name: deploy the infra configuration
+              run: terraform apply --auto-approve
+
+
+
