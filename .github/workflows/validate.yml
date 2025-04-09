@@ -1,0 +1,45 @@
+
+
+
+name: Infrastrcuture test & validation
+
+on:
+    push:
+        branches:
+            - dev
+
+jobs:
+    check-infrastructure:
+        runs-on: ubuntu-24.04
+
+        defaults:
+            run:
+                working-directory: infrastructure/data_collection_infra
+        
+        steps:
+            - name: clone repo into ubuntu machine
+              uses: actions/checkout@v4
+
+            - name: configure aws credentials
+              uses: aws-actions/configure-aws-credentials@v3 #stores it in a temporary manner
+              with:
+                aws-access-key-id: ${{secrets.DEVELOPER_ACCESS_KEY}}
+                aws-secret-access-key: ${{secrets.DEVELOPER_SECRET_ACCESS_KEY}}
+                aws-region: eu-central-1
+
+            - name: setup terraform
+              uses: hashicorp/setup-terraform@v3
+              with:
+                terraform_version: 1.9.5
+
+            - name: initialize terraform 
+              run: terraform init
+
+            - name: format the terraform configuration code
+              run: terraform fmt --recursive
+
+            - name: check the syntax of the terraform code
+              run: terraform validate
+
+            - name: infrastructure setup logic 
+              run: terraform plan

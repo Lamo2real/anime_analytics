@@ -51,7 +51,7 @@ jobs:
                 working-directory: infrastructure/data_collection_infra
 
         steps:
-            - name: use GitHub repo
+            - name: clone repo into ubuntu machine
               uses: actions/checkout@v4
 
             - name: download zipped lambda code from GitHub Artifacts
@@ -72,10 +72,7 @@ jobs:
               with:
                 terraform_version: 1.9.5
             
-            - name: format the terraform configuration code
-              run: terraform fmt --recursive
-            
-            - name: initialize therraform 
+            - name: initialize terraform 
               run: terraform init
 
             - name: check the syntax of the terraform code
