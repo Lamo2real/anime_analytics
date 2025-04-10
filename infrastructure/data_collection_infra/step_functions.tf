@@ -29,12 +29,12 @@ resource "aws_sfn_state_machine" "wrokflow" {
           Choices = [
             {
               Variable = "$.stfuResult.continue"
-              Boolean = true
+              BooleanEquals = true
               Next = "APIWait"
             },
             {
               Variable = "$.stfuResult.continue"
-              Boolean = false
+              BooleanEquals = false
               Next = "StopStateMachine"
             }
           ]
