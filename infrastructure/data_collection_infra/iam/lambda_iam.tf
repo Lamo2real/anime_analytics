@@ -6,7 +6,7 @@ resource "aws_iam_role" "lambda_execution_role" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "Lambda execution role for extract"
+        Sid    = "LambdaExecutionRoleForExtract"
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
