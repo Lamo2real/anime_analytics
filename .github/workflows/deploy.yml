@@ -45,6 +45,7 @@ jobs:
             
     deploy-infrastructure:
         runs-on: ubuntu-24.04
+        needs: zip-lambda
         
         defaults:
             run:

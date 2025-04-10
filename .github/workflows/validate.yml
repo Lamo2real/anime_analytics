@@ -46,7 +46,8 @@ jobs:
 
   check-infrastructure:
       runs-on: ubuntu-24.04
-
+      needs: zip-lambda
+      
       defaults:
           run:
               working-directory: infrastructure/data_collection_infra
