@@ -14,7 +14,7 @@ resource "aws_kms_key" "anime_kms_key" {
         Sid    = "S3PermissionsToKMS"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current_dev.account_id}:user/*"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current_dev.account_id}:user/${var.current_developer_name}"
         }
         Action   = "kms:*"
         Resource = "*"

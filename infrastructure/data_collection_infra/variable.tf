@@ -24,6 +24,12 @@ variable "s3_path_to_processed_data_file" {
   type        = string
   sensitive = true
 }
+
+variable "current_developer_name" {
+  description = "this is the username of the current developer"
+  type        = string
+  sensitive = true
+}
 ####################################################################################
 
 
