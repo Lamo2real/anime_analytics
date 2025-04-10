@@ -1,4 +1,21 @@
 
+variable "function_arn" {
+  description = "arn of the Lambda function"
+  type        = string
+  sensitive   = true
+}
+
+variable "kms_arn" {
+  description = "arn of the KMS key"
+  type        = string
+  sensitive   = true
+}
+
+variable "s3_bucket_arn" {
+  description = "arn of the S3 bucket"
+  type        = string
+  sensitive = true
+}
 
 variable "lambda_execution_role" {
   default     = "jikan-extract-lambda-execution-role"

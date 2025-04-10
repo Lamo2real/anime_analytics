@@ -1,6 +1,5 @@
 
 
-
 resource "aws_iam_role" "lambda_execution_role" {
   name = var.lambda_execution_role
   assume_role_policy = jsonencode({
@@ -16,7 +15,6 @@ resource "aws_iam_role" "lambda_execution_role" {
       }
     ]
   })
-
 }
 
 resource "aws_iam_role_policy" "lambda_execution_role_policy" {
@@ -35,8 +33,8 @@ resource "aws_iam_role_policy" "lambda_execution_role_policy" {
           "s3:PutObject"
         ]
         Resource = [
-          "${aws_s3_bucket.jikan_data_lake.arn}/*",
-          "${aws_s3_bucket.jikan_data_lake.arn}"
+          "${var.s3_bucket_arn}/*",
+          "${var.s3_bucket_arn}"
         ]
       },
       {
@@ -57,12 +55,9 @@ resource "aws_iam_role_policy" "lambda_execution_role_policy" {
           "kms:Decrypt",
           "kms:GenerateDataKey"
         ]
-        Resource = "${aws_kms_key.anime_kms_key.arn}"
+        Resource = "${var.kms_arn}"
       }
     ]
   })
 }
 
-output "lambda_execution_role_arn" {
-  value = aws_iam_role.lambda_execution_role.arn
-}

@@ -25,7 +25,7 @@ jobs:
               with:
                 aws-access-key-id: ${{secrets.DEVELOPER_ACCESS_KEY}}
                 aws-secret-access-key: ${{secrets.DEVELOPER_SECRET_ACCESS_KEY}}
-                aws-region: eu-central-1
+                aws-region: ${{secrets.INFRASTRCUTURE_REGION}}
 
             - name: setup terraform
               uses: hashicorp/setup-terraform@v3
@@ -42,4 +42,9 @@ jobs:
               run: terraform validate
 
             - name: infrastructure setup logic 
-              run: terraform plan
+              run: |
+                terraform plan \
+                  -var="anime_etl_region=${{secrets.INFRASTRCUTURE_REGION}}" \
+                  -var="lambda_infra_name=${{secrets.LAMBDA_NAME}}" \
+                  -var="s3_data_lake_name=${{secrets.S3_DATA_LAKE}}" \
+                  -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}"

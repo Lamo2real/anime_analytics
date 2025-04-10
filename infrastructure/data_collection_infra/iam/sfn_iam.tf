@@ -1,7 +1,4 @@
 
-module "lambda" {
-  source = "../"
-}
 
 resource "aws_iam_role" "sfn_iam_role" {
   name = var.sfn_role_name
@@ -30,12 +27,9 @@ resource "aws_iam_role_policy" "sfn_assumumtion_role" {
             Sid = "AllowStepFunctionsToInvokeLambda"
             Effect = "Allow"
             Action = "lambda:InvokeFunction"
-            Resource = "${module.lambda.lambda_arn}"
+            Resource = "${var.function_arn}"
         }
     ]
   })
 }
 
-output "step_function_role_arn" {
-  value = aws_iam_role.sfn_iam_role.arn
-}

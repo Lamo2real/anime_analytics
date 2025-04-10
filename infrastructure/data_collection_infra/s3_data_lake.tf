@@ -5,6 +5,7 @@ resource "aws_s3_bucket" "jikan_data_lake" {
   bucket = var.s3_data_lake_name
 }
 
+
 resource "aws_s3_bucket_public_access_block" "name" {
   bucket = aws_s3_bucket.jikan_data_lake.id
 
@@ -13,6 +14,7 @@ resource "aws_s3_bucket_public_access_block" "name" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "jika_data_lake_encryption_config" {
   bucket = aws_s3_bucket.jikan_data_lake.id
@@ -25,3 +27,5 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "jika_data_lake_en
     }
   }
 }
+
+
