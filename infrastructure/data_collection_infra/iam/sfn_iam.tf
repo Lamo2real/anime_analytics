@@ -8,7 +8,7 @@ resource "aws_iam_role" "sfn_iam_role" {
         {
             Effect = "Allow"
             Action = "sts:AssumeRole"
-            Pricipal = {
+            Principal = {
                 Service = "states.amazonaws.com"
             }
         }

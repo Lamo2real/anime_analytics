@@ -9,7 +9,7 @@ resource "aws_iam_role" "lambda_execution_role" {
         Sid    = "Lambda execution role for extract"
         Action = "sts:AssumeRole"
         Effect = "Allow"
-        Pricipal = {
+        Principal = {
           Service = "lambda.amazonaws.com"
         }
       }
