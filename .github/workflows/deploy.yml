@@ -46,7 +46,7 @@ jobs:
     deploy-infrastructure:
         runs-on: ubuntu-24.04
         needs: zip-lambda
-        
+
         defaults:
             run:
                 working-directory: infrastructure/data_collection_infra
@@ -90,7 +90,7 @@ jobs:
             - name: deploy the infra configuration
               run: |
                 terraform apply --auto-approve \
-                  -var="anime_etl_region=${{secrets.INFRASTRCUTURE_REGION}}" \ 
+                  -var="anime_etl_region=${{secrets.INFRASTRCUTURE_REGION}}" \
                   -var="lambda_infra_name=${{secrets.LAMBDA_NAME}}" \
                   -var="s3_data_lake_name=${{secrets.S3_DATA_LAKE}}" \
                   -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}"
