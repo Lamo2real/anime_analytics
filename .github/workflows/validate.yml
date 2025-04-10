@@ -9,42 +9,83 @@ on:
             - dev
 
 jobs:
-    check-infrastructure:
+  zip-lambda:
         runs-on: ubuntu-24.04
-
+        
         defaults:
             run:
-                working-directory: infrastructure/data_collection_infra
-        
+                working-directory: application
+
         steps:
-            - name: clone repo into ubuntu machine
+            - name: Use GitHub Repo
               uses: actions/checkout@v4
 
-            - name: configure aws credentials
-              uses: aws-actions/configure-aws-credentials@v3 #stores it in a temporary manner
-              with:
-                aws-access-key-id: ${{secrets.DEVELOPER_ACCESS_KEY}}
-                aws-secret-access-key: ${{secrets.DEVELOPER_SECRET_ACCESS_KEY}}
-                aws-region: ${{secrets.INFRASTRCUTURE_REGION}}
+            - name: delete zip if exists
+              run: rm --force extract_load_script.zip
 
-            - name: setup terraform
-              uses: hashicorp/setup-terraform@v3
-              with:
-                terraform_version: 1.9.5
-
-            - name: initialize terraform 
-              run: terraform init
-
-            - name: format the terraform configuration code
-              run: terraform fmt --recursive
-
-            - name: check the syntax of the terraform code
-              run: terraform validate
-
-            - name: infrastructure setup logic 
+            - name: install dependencies
               run: |
-                terraform plan \
-                  -var="anime_etl_region=${{secrets.INFRASTRCUTURE_REGION}}" \
-                  -var="lambda_infra_name=${{secrets.LAMBDA_NAME}}" \
-                  -var="s3_data_lake_name=${{secrets.S3_DATA_LAKE}}" \
-                  -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}"
+                mkdir --parents temp_package
+                pip install -r requirements.txt --target temp_package/
+            
+            - name: copy all python files to temporary directory
+              run: cp --recursive script/. --target temp_package/
+
+            - name: zip the temporary folder
+              run: zip extract_load_script.zip temp_package/.
+
+            - name: delete the temp folder & clean workstation
+              run: rm --recursive --force temp_package
+
+            - name: Load the zip file to GitHub artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                name: lambda-zip-artifact
+                path: application/extract_load_script.zip
+
+
+  check-infrastructure:
+      runs-on: ubuntu-24.04
+
+      defaults:
+          run:
+              working-directory: infrastructure/data_collection_infra
+      
+      steps:
+          - name: clone repo into ubuntu machine
+            uses: actions/checkout@v4
+
+          - name: download zipped lambda code from GitHub Artifacts
+            uses: actions/download-artifact@v4
+            with:
+              name: lambda-zip-artifact
+              path: application/
+
+          - name: configure aws credentials
+            uses: aws-actions/configure-aws-credentials@v3 #stores it in a temporary manner
+            with:
+              aws-access-key-id: ${{secrets.DEVELOPER_ACCESS_KEY}}
+              aws-secret-access-key: ${{secrets.DEVELOPER_SECRET_ACCESS_KEY}}
+              aws-region: ${{secrets.INFRASTRCUTURE_REGION}}
+
+          - name: setup terraform
+            uses: hashicorp/setup-terraform@v3
+            with:
+              terraform_version: 1.9.5
+
+          - name: initialize terraform 
+            run: terraform init
+
+          - name: format the terraform configuration code
+            run: terraform fmt --recursive
+
+          - name: check the syntax of the terraform code
+            run: terraform validate
+
+          - name: infrastructure setup logic 
+            run: |
+              terraform plan \
+                -var="anime_etl_region=${{secrets.INFRASTRCUTURE_REGION}}" \
+                -var="lambda_infra_name=${{secrets.LAMBDA_NAME}}" \
+                -var="s3_data_lake_name=${{secrets.S3_DATA_LAKE}}" \
+                -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}"
