@@ -1,0 +1,8 @@
+
+*json
+*.csv
+__pycache__
+.terraform*
+*.tfstate
+.env
+*.sh
