@@ -15,11 +15,11 @@ For this project I have leveraged AWS Cloud where I host my infrastructure so if
 </br>
 
 ### Table of Contents
-1. [Project Description](#first)
-2. [Technologies Used](#second)
-3. [Installation](#third)
-4. [Solution Architecture](#fourth)
-5. [Contact](#fifth)
+1. [Project Description](#project-description)
+2. [Technologies Used](#technologies-used)
+3. [Installation](#installation)
+4. [Solution Architecture](#solution-architecture)
+5. [Contact](#contact)
 
 
 </br>
