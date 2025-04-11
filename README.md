@@ -19,7 +19,8 @@ For this project I have leveraged AWS Cloud where I host my infrastructure so if
 2. [Technologies Used](#technologies-used)
 3. [Installation](#installation)
 4. [Solution Architecture](#solution-architecture)
-5. [Contact](#contact)
+5. [Orchestration](#orchestration)
+6. [Contact](#contact)
 
 
 </br>
@@ -39,7 +40,7 @@ The Jikan API, documented as such:
 | Per Seconds|3 requests |
 |                        |
 
-Although after some local testing of the api in a for loop the API only provided a response when it was called with a minimum of 2 seconds interwall. Therefor my solution for this issue was to run a state machine in AWS called [AWS Step Functions](https://aws.amazon.com/step-functions/) to keep track of each pagination for each API call to this Endpoint:
+Although after some local testing of the api in a for loop the API only provided a response when it was called with a minimum of 2 seconds interwall. Therefor my solution for this issue was to run a state machine in AWS called [AWS Step Functions](https://aws.amazon.com/step-functions/) to keep track of (or rather orchestrate) each pagination logic for each API call to this Endpoint:
 ```sh
 https://api.jikan.moe/v4/anime?page={integer-placeholder}
 ```
@@ -100,7 +101,16 @@ pip install -r dev_requirements.txt
 ## Solution Architecture
 ![data Pipeline](images/diagram.png)
 *this is the solution architecture for the automation of the data extraction pipeline*
+</br>
+</br></br></br>
 
+## Orchestration
+
+</br>
+
+![step functions workflow](images/step-functions-workflow.png)
+</br>
+*this is my AWS Step functions Orchestration workflow defined in json, but as you cann see it is vizualized from AWS Console*
 </br>
 </br>
 
