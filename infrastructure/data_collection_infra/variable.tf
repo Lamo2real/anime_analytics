@@ -30,9 +30,15 @@ variable "current_developer_name" {
   type        = string
   sensitive = true
 }
+
+variable "ecr_repository" {
+  description = "this is the name of the ecr repository where lambda will fetch docker image to run lambda"
+  type        = string
+  sensitive = true
+}
+
+
 ####################################################################################
-
-
 
 
 

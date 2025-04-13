@@ -48,6 +48,16 @@ resource "aws_iam_role_policy" "lambda_execution_role_policy" {
         Resource = "arn:aws:logs:*:*:*"
       },
       {
+        Sid = "AllowLambdaToPullImageFromECR"
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchGetImage",
+          "ecr:BatchCheckLayerAvailability"
+        ]
+        Resource = "${var.ecr_arn}"
+      },
+      {
         Sid    = "AllowLambdaToUseKMSKey"
         Effect = "Allow"
         Action = [

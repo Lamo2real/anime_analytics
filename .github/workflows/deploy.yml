@@ -8,100 +8,92 @@ on:
 
 
 jobs:
-    zip-lambda:
-        runs-on: ubuntu-24.04
-        
-        defaults:
-            run:
-                working-directory: application
+            
+  deploy-infrastructure:
+      runs-on: ubuntu-24.04
 
-        steps:
-          - name: Use GitHub Repo
+      defaults:
+          run:
+              working-directory: infrastructure/data_collection_infra
+
+      steps:
+          - name: clone repo into ubuntu machine
             uses: actions/checkout@v4
-      
-          - name: delete zip if exists
-            run: rm --force extract_load_script.zip
-      
-          - name: install dependencies
-            run: |
-              mkdir --parents temp_package
-              pip install -r requirements.txt --target temp_package/
-          
-          - name: copy all python files to temporary directory
-            run: cp -r script/*.py temp_package/
-      
-          - name: check the temp_directory
-            run: |
-              echo "content of the temp_package:"
-              ls --recursive temp_package
-      
-          - name: zip the temporary folder
-            run: |
-              cd temp_package && zip -r ../extract_load_script.zip ./*
-              cd ..
-      
-          - name: delete the temp folder & clean workstation
-            run: rm --recursive --force temp_package
-      
-          - name: Load the zip file to GitHub artifacts
-            uses: actions/upload-artifact@v4
+
+          - name: configure aws credentials
+            uses: aws-actions/configure-aws-credentials@v3 #stores it in a temporary manner
             with:
-              name: lambda-zip-artifact
-              path: application/extract_load_script.zip
+              aws-access-key-id: ${{secrets.DEVELOPER_ACCESS_KEY}}
+              aws-secret-access-key: ${{secrets.DEVELOPER_SECRET_ACCESS_KEY}}
+              aws-region: ${{secrets.INFRASTRCUTURE_REGION}}
 
-            
-    deploy-infrastructure:
-        runs-on: ubuntu-24.04
-        needs: zip-lambda
+          - name: setup terraform
+            uses: hashicorp/setup-terraform@v3
+            with:
+              terraform_version: 1.9.5
+          
+          - name: initialize terraform 
+            run: terraform init
 
-        defaults:
-            run:
-                working-directory: infrastructure/data_collection_infra
+          - name: check the syntax of the terraform code
+            run: terraform validate
 
-        steps:
-            - name: clone repo into ubuntu machine
-              uses: actions/checkout@v4
+          - name: infrastructure setup logic (plan)
+            run: |
+              terraform plan \
+                -var="anime_etl_region=${{secrets.INFRASTRCUTURE_REGION}}" \
+                -var="lambda_infra_name=${{secrets.LAMBDA_NAME}}" \
+                -var="s3_data_lake_name=${{secrets.S3_DATA_LAKE}}" \
+                -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
+                -var="current_developer_name=${{secrets.DEVELOPER_NAME}}" \
+                -var="ecr_repository=${{secrets.ECR_REPO_NAME}}"
 
-            - name: download zipped lambda code from GitHub Artifacts
-              uses: actions/download-artifact@v4
-              with:
-                name: lambda-zip-artifact
-                path: application/
-
-            - name: configure aws credentials
-              uses: aws-actions/configure-aws-credentials@v3 #stores it in a temporary manner
-              with:
-                aws-access-key-id: ${{secrets.DEVELOPER_ACCESS_KEY}}
-                aws-secret-access-key: ${{secrets.DEVELOPER_SECRET_ACCESS_KEY}}
-                aws-region: ${{secrets.INFRASTRCUTURE_REGION}}
-
-            - name: setup terraform
-              uses: hashicorp/setup-terraform@v3
-              with:
-                terraform_version: 1.9.5
-            
-            - name: initialize terraform 
-              run: terraform init
-
-            - name: check the syntax of the terraform code
-              run: terraform validate
-
-            - name: infrastructure setup logic (plan)
-              run: |
-                terraform plan \
-                  -var="anime_etl_region=${{secrets.INFRASTRCUTURE_REGION}}" \
-                  -var="lambda_infra_name=${{secrets.LAMBDA_NAME}}" \
-                  -var="s3_data_lake_name=${{secrets.S3_DATA_LAKE}}" \
-                  -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
-                  -var="current_developer_name=${{secrets.DEVELOPER_NAME}}"
-
-            - name: deploy the infra configuration
-              run: |
-                terraform apply --auto-approve \
-                  -var="anime_etl_region=${{secrets.INFRASTRCUTURE_REGION}}" \
-                  -var="lambda_infra_name=${{secrets.LAMBDA_NAME}}" \
-                  -var="s3_data_lake_name=${{secrets.S3_DATA_LAKE}}" \
-                  -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
-                  -var="current_developer_name=${{secrets.DEVELOPER_NAME}}"
+          - name: deploy the infra configuration
+            run: |
+              terraform apply --auto-approve \
+                -var="anime_etl_region=${{secrets.INFRASTRCUTURE_REGION}}" \
+                -var="lambda_infra_name=${{secrets.LAMBDA_NAME}}" \
+                -var="s3_data_lake_name=${{secrets.S3_DATA_LAKE}}" \
+                -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
+                -var="current_developer_name=${{secrets.DEVELOPER_NAME}}" \
+                -var="ecr_repository=${{secrets.ECR_REPO_NAME}}"
 
 
+  docker-image-to-ecr:
+    runs-on: ubuntu-24.04
+    needs: deploy-infrastructure
+  
+    defaults:
+        run:
+            working-directory: application
+  
+    steps:
+        - name: clone repo into ubuntu machine
+          uses: actions/checkout@v4
+  
+        - name: configure aws credentials
+          uses: aws-actions/configure-aws-credentials@v3
+          with:
+            aws-access-key-id: ${{secrets.DEVELOPER_ACCESS_KEY}}
+            aws-secret-access-key: ${{secrets.DEVELOPER_SECRET_ACCESS_KEY}}
+            aws-region: ${{secrets.INFRASTRCUTURE_REGION}}
+  
+        - name: cleaning/deleting existing docker image in ecr if exists
+          run: |
+            aws ecr batch-delete-image \
+              --repository-name ${{secrets.ECR_REPO_NAME}} \
+              --image-ids imageTag=latest \
+              --region ${{secrets.INFRASTRCUTURE_REGION}} \
+              --no-cli-pager || true
+
+        - name: set image URI to a github env variable
+          run: echo "ECR_IMAGE_URI=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:latest" > $GITHUB_ENV
+  
+        - name: build docker image compatible with ECR image URI
+          run: docker build -t $ECR_IMAGE_URI .
+  
+        - name: push docker image to ECR repository
+          run: docker push $ECR_IMAGE_URI
+  
+        - name: delete local docker image
+          run: docker rmi $ECR_IMAGE_URI

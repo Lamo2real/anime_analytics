@@ -28,3 +28,8 @@ variable "sfn_role_name" {
   description = "this is the name of the anime step functionns data flow stream"
   type        = string
 }
+
+variable "ecr_arn" {
+  description = "this is the arn of ecr passed down from the parent directory"
+  type = string
+}
