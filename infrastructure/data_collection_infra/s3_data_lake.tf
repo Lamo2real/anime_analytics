@@ -64,7 +64,7 @@ resource "aws_s3_bucket_policy" "jikan_data_lake_bucket_policy" {
           "${aws_s3_bucket.jikan_data_lake.arn}",
           "${aws_s3_bucket.jikan_data_lake.arn}/*"
         ]
-      }
+      } #maybe add a deny or add an allow for glue catalog or 
     ]
   })
 }
