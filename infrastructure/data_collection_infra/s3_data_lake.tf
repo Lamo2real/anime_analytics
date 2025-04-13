@@ -28,4 +28,44 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "jika_data_lake_en
   }
 }
 
+resource "aws_s3_bucket_policy" "jikan_data_lake_bucket_policy" {
+  bucket = aws_s3_bucket.jikan_data_lake.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid = "JikanS3DataLakePolicy"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "${aws_s3_bucket.jikan_data_lake.arn}",
+          "${aws_s3_bucket.jikan_data_lake.arn}/*"
+        ]
+      },
+      {
+        Sid = "AllowGlueAccessToS3"
+        Effect = "Allow"
+        Principal = {
+          Service = "glue.amazonaws.com"
+        }
+        Action = [
+          "s3:ListBucket",
+          "s3:GetObject"
+        ]
+        Resource = [
+          "${aws_s3_bucket.jikan_data_lake.arn}",
+          "${aws_s3_bucket.jikan_data_lake.arn}/*"
+        ]
+      }
+    ]
+  })
+}
 
