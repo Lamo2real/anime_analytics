@@ -17,8 +17,8 @@ resource "aws_lambda_function" "extract_anime_data" {
   handler       = "${var.lambda_file_name}.${var.lambda_file_function_name}"
   role          = module.iam.lambda_execution_role_arn
   runtime       = "python3.13"
-  timeout       = 60
-  memory_size   = 256
+  timeout       = 120
+  memory_size   = 512
   architectures = ["x86_64"]
 
   kms_key_arn = aws_kms_key.anime_kms_key.arn

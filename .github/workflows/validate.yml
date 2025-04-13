@@ -29,7 +29,7 @@ jobs:
                 pip install -r requirements.txt --target temp_package/
             
             - name: copy all python files to temporary directory
-              run: cp --recursive script/. temp_package/
+              run: cp -r script/*.py temp_package/
 
             - name: check the temp_directory
               run: |
