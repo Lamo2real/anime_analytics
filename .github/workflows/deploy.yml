@@ -47,7 +47,7 @@ jobs:
                 -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
                 -var="current_developer_name=${{secrets.DEVELOPER_NAME}}" \
                 -var="ecr_repository=${{secrets.ECR_REPO_NAME}}" \
-                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}"
+                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:latest"
 
           - name: deploy the infra configuration
             run: |
@@ -58,7 +58,7 @@ jobs:
                 -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
                 -var="current_developer_name=${{secrets.DEVELOPER_NAME}}" \
                 -var="ecr_repository=${{secrets.ECR_REPO_NAME}}" \
-                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}"
+                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:latest"
 
 
   docker-image-to-ecr:
@@ -89,7 +89,7 @@ jobs:
               --no-cli-pager || true
 
         - name: set image URI to a github env variable
-          run: echo "ECR_IMAGE_URI=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}" > $GITHUB_ENV
+          run: echo "ECR_IMAGE_URI=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:latest" > $GITHUB_ENV
   
         - name: build docker image compatible with ECR image URI
           run: docker build -t $ECR_IMAGE_URI .
