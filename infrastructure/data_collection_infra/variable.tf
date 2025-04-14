@@ -37,6 +37,11 @@ variable "ecr_repository" {
   sensitive = true
 }
 
+variable "docker_image_uri" {
+  description = "this is the name of the docker image that will be run in lambda"
+  type        = string
+  sensitive = true
+}
 
 ####################################################################################
 

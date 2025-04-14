@@ -15,8 +15,8 @@ module "iam" {
 resource "aws_lambda_function" "extract_anime_data" {
   function_name = var.lambda_infra_name
   
-  package_type = "Image"
-  image_uri = "${aws_ecr_repository.lambda_repo.repository_url}:latest"
+  package_type  = "Image"
+  image_uri     = var.docker_image_uri
   role          = module.iam.lambda_execution_role_arn
   timeout       = 120
   memory_size   = 512
