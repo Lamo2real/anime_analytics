@@ -8,9 +8,48 @@ on:
 
 
 jobs:
-            
+  docker-image-to-ecr:
+    runs-on: ubuntu-24.04
+  
+    defaults:
+        run:
+            working-directory: application
+  
+    steps:
+        - name: clone repo into ubuntu machine
+          uses: actions/checkout@v4
+  
+        - name: configure aws credentials
+          uses: aws-actions/configure-aws-credentials@v3
+          with:
+            aws-access-key-id: ${{secrets.DEVELOPER_ACCESS_KEY}}
+            aws-secret-access-key: ${{secrets.DEVELOPER_SECRET_ACCESS_KEY}}
+            aws-region: ${{secrets.INFRASTRCUTURE_REGION}}
+  
+        - name: cleaning/deleting existing docker image in ecr if exists
+          run: |
+            aws ecr batch-delete-image \
+              --repository-name ${{secrets.ECR_REPO_NAME}} \
+              --image-ids imageTag=latest \
+              --region ${{secrets.INFRASTRCUTURE_REGION}} \
+              --no-cli-pager || true
+
+        - name: set image URI to a github env variable
+          run: echo "ECR_IMAGE_URI=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:latest" > $GITHUB_ENV
+  
+        - name: build docker image compatible with ECR image URI
+          run: docker build -t $ECR_IMAGE_URI .
+  
+        - name: push docker image to ECR repository
+          run: docker push $ECR_IMAGE_URI
+  
+        - name: delete local docker image
+          run: docker rmi $ECR_IMAGE_URI
+          
+          
   deploy-infrastructure:
       runs-on: ubuntu-24.04
+      needs: docker-image-to-ecr
 
       defaults:
           run:
@@ -61,41 +100,3 @@ jobs:
                 -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:latest"
 
 
-  docker-image-to-ecr:
-    runs-on: ubuntu-24.04
-    needs: deploy-infrastructure
-  
-    defaults:
-        run:
-            working-directory: application
-  
-    steps:
-        - name: clone repo into ubuntu machine
-          uses: actions/checkout@v4
-  
-        - name: configure aws credentials
-          uses: aws-actions/configure-aws-credentials@v3
-          with:
-            aws-access-key-id: ${{secrets.DEVELOPER_ACCESS_KEY}}
-            aws-secret-access-key: ${{secrets.DEVELOPER_SECRET_ACCESS_KEY}}
-            aws-region: ${{secrets.INFRASTRCUTURE_REGION}}
-  
-        - name: cleaning/deleting existing docker image in ecr if exists
-          run: |
-            aws ecr batch-delete-image \
-              --repository-name ${{secrets.ECR_REPO_NAME}} \
-              --image-ids imageTag=latest \
-              --region ${{secrets.INFRASTRCUTURE_REGION}} \
-              --no-cli-pager || true
-
-        - name: set image URI to a github env variable
-          run: echo "ECR_IMAGE_URI=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:latest" > $GITHUB_ENV
-  
-        - name: build docker image compatible with ECR image URI
-          run: docker build -t $ECR_IMAGE_URI .
-  
-        - name: push docker image to ECR repository
-          run: docker push $ECR_IMAGE_URI
-  
-        - name: delete local docker image
-          run: docker rmi $ECR_IMAGE_URI
