@@ -49,7 +49,7 @@ def enhance_structure(dataset, page):
             'anime_id', 'title', 'aired_from',
             'aired_to', 'episodes', 'duration',
             'score', 'genre_1', 'genre_2', 'genre_3',
-            'genre_anime_id_1', 'genre_anime_id_2', 'genre_anime_id_3'
+            'genre_anime_id_1', 'genre_anime_id_2', 'genre_anime_id_3',
             'trailer_link', 'studio', 'studio_id', 'validated'
             ]]
         df.index = df.index + 1
