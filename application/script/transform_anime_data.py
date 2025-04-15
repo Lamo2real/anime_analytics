@@ -22,7 +22,7 @@ def transform(event, context):
     except Exception as e:
         logging.error(f'something went wrong in step functions')
         raise e
-    # page = event
+    # page = event 
 
     ###### STFU = STep FUnction ######
     # next & run
