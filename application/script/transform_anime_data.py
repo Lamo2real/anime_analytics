@@ -2,17 +2,27 @@
 import logging
 import pandas as pd
 import os
+# import time
 
 from pd_data_structure import enhance_structure
 from extract_anime_data import extract
 from append_to_csv import csv_logic
 
 def transform(event, context):
+# def transform(event):
     """transform to showcase the data based on the KPI"""
 
     bucket_name = os.environ['BUCKET_NAME'] #referring to lambda environment variables
     s3_key_path = os.environ['S3_KEY_PATH'] #referring to lambda environment variables
-    page = event.get('page', 1) #takes page if it exists else 1
+
+
+    try: 
+        page = event.get('page', 1) #takes page if it exists else 1
+        logging.info(f'it is iterating with step functions successfully')
+    except Exception as e:
+        logging.error(f'something went wrong in step functions')
+        raise e
+    # page = event
 
     ###### STFU = STep FUnction ######
     # next & run
@@ -46,7 +56,8 @@ def transform(event, context):
         logging.info(f'start transformation')
         normalized_data = pd.json_normalize(data)
         df = enhance_structure(normalized_data, page)
-        
+        # print(df.head(20).to_string(index=False))
+        # df.to_csv('test.csv', index=False)
         csv_logic(df, bucket_name, s3_key_path)
 
         logging.info(f'successful data transformation for page {page}')
@@ -62,12 +73,12 @@ def transform(event, context):
 
 
 
-if __name__ == "__main__":
-    """runs the function locally merely if this file is run"""
+# if __name__ == "__main__":
+#     """runs the function locally merely if this file is run"""
 
-    transform(1)
-    # for i in range(1132, 1137):
-    # for i in range(1, 5):
-        # transform(i)
-        # time.sleep(3)
+#     transform(1)
+#     for i in range(1132, 1137):
+#     for i in range(1, 5):
+#         transform(i)
+#         time.sleep(3)
 

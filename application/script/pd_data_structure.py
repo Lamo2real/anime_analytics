@@ -2,24 +2,37 @@
 import logging
 import pandas as pd
 
-from clean_functions import convert_to_minutes, clean_title, clean_genre, clean_studio
+from clean_functions import convert_to_minutes, clean_title
+
 
 def enhance_structure(dataset, page):
-
+    
+    try:
     # pd.isna() checks if the value is none
         dataset.dropna(subset=['title_english', 'title'], how='all', inplace=True) # drop the row if *both* are None 
-
+        
         dataset['title_english'] = dataset.apply(
             lambda row: row['title'] if pd.isna(row['title_english']) else row['title_english'], axis=1
         )
 
-        # genres organized in 3
         for i in range(1, 4):
-            dataset[f'genre_{i}'] = dataset['genres'].apply(lambda genre: clean_genre(genre, i-1))
-            dataset[f'genre_anime_id_{i}'] = dataset['genres'].apply(lambda genre: clean_genre(genre, i-1))
+            dataset[f'genre_{i}'] = dataset['genres'].apply(
+            lambda genres: genres[i-1]['name'] if isinstance(genres, list) and len(genres) > i-1 else None
+        )
+        for i in range(1, 4):
+            dataset[f'genre_id_{i}'] = dataset['genres'].apply(
+            lambda genres: int(genres[i-1]['mal_id']) if isinstance(genres, list) and len(genres) > i-1 else pd.NA
+        )
 
-        # manipulate the naming convention
-        dataset['studio'] = dataset['studios'].apply(lambda studio: clean_studio(studio))
+        dataset['studio_name'] = dataset['studios'].apply(
+            lambda studio: studio[0]['name'] if isinstance(studio, list) and len(studio) else None
+        )
+        dataset['studio_id'] = dataset['studios'].apply(
+            
+            lambda studio: studio[0]['mal_id'] if isinstance(studio, list) and len(studio) else None
+        )
+
+
 
         dataset[['anime_id', 'trailer_link', 'validated', 'title', 'aired_from', 'aired_to']] = \
             dataset[['mal_id', 'trailer.url', 'approved', 'title_english', 'aired.from', 'aired.to']]
@@ -48,10 +61,15 @@ def enhance_structure(dataset, page):
         df = dataset[[
             'anime_id', 'title', 'aired_from',
             'aired_to', 'episodes', 'duration',
-            'score', 'genre_1', 'genre_2', 'genre_3',
-            'genre_anime_id_1', 'genre_anime_id_2', 'genre_anime_id_3',
-            'trailer_link', 'studio', 'studio_id', 'validated'
+            'studio_name', 'studio_id',
+            'genre_1', 'genre_2', 'genre_3',
+            'genre_id_1', 'genre_id_2', 'genre_id_3',
+            'score', 'validated'
             ]]
         df.index = df.index + 1
 
         return df
+    
+    except Exception as e:
+        logging.error(f'unexpected issue: {e}')
+        raise e
