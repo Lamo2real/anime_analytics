@@ -9,51 +9,8 @@ on:
             - dev
 
 jobs:
-  zip-lambda:
-        runs-on: ubuntu-24.04
-        
-        defaults:
-            run:
-                working-directory: application
-
-        steps:
-            - name: Use GitHub Repo
-              uses: actions/checkout@v4
-
-            - name: delete zip if exists
-              run: rm --force extract_load_script.zip
-
-            - name: install dependencies
-              run: |
-                mkdir --parents temp_package
-                pip install -r requirements.txt --target temp_package/
-            
-            - name: copy all python files to temporary directory
-              run: cp -r script/*.py temp_package/
-
-            - name: check the temp_directory
-              run: |
-                echo "content of the temp_package:"
-                ls --recursive temp_package
-
-            - name: zip the temporary folder
-              run: |
-                cd temp_package && zip -r ../extract_load_script.zip ./*
-                cd ..
-
-            - name: delete the temp folder & clean workstation
-              run: rm --recursive --force temp_package
-
-            - name: Load the zip file to GitHub artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                name: lambda-zip-artifact
-                path: application/extract_load_script.zip
-
-
   check-infrastructure:
       runs-on: ubuntu-24.04
-      needs: zip-lambda
       
       defaults:
           run:
@@ -62,12 +19,6 @@ jobs:
       steps:
           - name: clone repo into ubuntu machine
             uses: actions/checkout@v4
-
-          - name: download zipped lambda code from GitHub Artifacts
-            uses: actions/download-artifact@v4
-            with:
-              name: lambda-zip-artifact
-              path: application/
 
           - name: configure aws credentials
             uses: aws-actions/configure-aws-credentials@v3 #stores it in a temporary manner
@@ -97,4 +48,7 @@ jobs:
                 -var="lambda_infra_name=${{secrets.LAMBDA_NAME}}" \
                 -var="s3_data_lake_name=${{secrets.S3_DATA_LAKE}}" \
                 -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
-                -var="current_developer_name=${{secrets.DEVELOPER_NAME}}"
+                -var="current_developer_name=${{secrets.DEVELOPER_NAME}}" \
+                -var="ecr_repository=${{secrets.ECR_REPO_NAME}}" \
+                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:latest"
+                

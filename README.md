@@ -3,8 +3,8 @@
 
 # Anime Analytics
 
-## This is a data pipeline for extracting, and doing some light data manipulation, then loading it to a data lake.
-This project is an automated data pipeline that will take semi-structured data from an API called jikan, and extract and load it into a data lake in the AWS Cloud (Amazon S3), then transform it using pandas and load it to snowflake for analytics
+## This is a ETL pipeline for extracting, and doing some light data manipulation, then loading it to a data lake.
+This project is an automated ETL pipeline that will take semi-structured data from an API called jikan, and extract and load it into a data lake in the AWS Cloud (Amazon S3), then transform it using pandas and load it to snowflake for analytics
 
 </br>
 
