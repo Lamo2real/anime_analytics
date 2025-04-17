@@ -5,7 +5,7 @@ import boto3
 from io import StringIO
 from botocore.exceptions import ClientError
 
-S3 = boto3.resource('s3')
+S3 = boto3.client('s3')
 
 def csv_logic(df, bucket_name, key_path):
     """join the new dataframe and existing dataframe into one, then update csv"""
@@ -22,7 +22,7 @@ def csv_logic(df, bucket_name, key_path):
                 data_from_cloud =s3_object['Body'].read().decode('utf-8')
                 df_existing = pd.read_csv(StringIO(data_from_cloud))
                 df_combined = pd.concat([df_existing, df], ignore_index=True) # ignore incremental id, 'concat' kinda acts like a SQL join in a way
-                df_combined.drop_duplicates(subset=['id', 'title'], inplace=True) # inplace indicates that it modifies the existing dataframe and doesnt create a new one
+                df_combined.drop_duplicates(subset=['anime_id', 'title'], inplace=True) # inplace indicates that it modifies the existing dataframe and doesnt create a new one
 
             except ClientError as ce:
                 if ce.response['Error']['Code'] == 'NoSuchKey':

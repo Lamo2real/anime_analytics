@@ -2,7 +2,7 @@
 import logging
 import pandas as pd
 import os
-# import time
+import time
 
 from pd_data_structure import enhance_structure
 from extract_anime_data import extract
@@ -12,8 +12,8 @@ def transform(event, context):
 # def transform(event):
     """transform to showcase the data based on the KPI"""
 
-    bucket_name = os.environ['BUCKET_NAME'] #referring to lambda environment variables
-    s3_key_path = os.environ['S3_KEY_PATH'] #referring to lambda environment variables
+    bucket_name = os.environ['BUCKET_NAME'] #referring to lambda environment variables 
+    s3_key_path = os.environ['S3_KEY_PATH'] #referring to lambda environment variables 
 
 
     try: 
@@ -76,8 +76,8 @@ def transform(event, context):
 # if __name__ == "__main__":
 #     """runs the function locally merely if this file is run"""
 
-#     transform(1)
-#     for i in range(1132, 1137):
+#     # transform(1)
+#     # for i in range(1132, 1137):
 #     for i in range(1, 5):
 #         transform(i)
 #         time.sleep(3)
