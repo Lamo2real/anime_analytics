@@ -1,10 +1,10 @@
-FROM public.ecr.aws/lambda/python:3.11
+FROM public.ecr.aws/lambda/python:3.13
 
 # there is no path for requirements.txt because it is in the same root as the docker file
 COPY requirements.txt ${LAMBDA_TASK_ROOT}
 
 # same as above
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # copy every python file into the lambda function directory inside the container
 COPY script/*.py ${LAMBDA_TASK_ROOT}
