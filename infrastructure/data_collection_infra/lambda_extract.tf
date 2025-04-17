@@ -6,6 +6,7 @@ locals {
 module "iam" {
   source           = "./iam"
    
+  sfn_arn          = aws_sfn_state_machine.wrokflow.arn
   s3_bucket_arn    = aws_s3_bucket.jikan_data_lake.arn  
   kms_arn          = aws_kms_key.anime_kms_key.arn
   function_arn     = aws_lambda_function.extract_anime_data.arn

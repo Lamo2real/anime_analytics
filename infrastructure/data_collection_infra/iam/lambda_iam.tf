@@ -57,6 +57,15 @@ resource "aws_iam_role_policy" "lambda_execution_role_policy" {
         ]
         Resource = "${var.ecr_arn}"
       },
+      # {
+      #   Sid = "AllowLambdaToSendStatusToStepFunctions"
+      #   Effect = "Allow"
+      #   Action = [
+      #     "states:SendTaskSuccess",
+      #     "states:SendTaskFailure"
+      #   ]
+      #   Resource = "${var.sfn_arn}"
+      # },
       {
         Sid    = "AllowLambdaToUseKMSKey"
         Effect = "Allow"

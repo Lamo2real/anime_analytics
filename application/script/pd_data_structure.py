@@ -34,8 +34,14 @@ def enhance_structure(dataset, page):
 
 
 
-        dataset[['anime_id', 'trailer_link', 'validated', 'title', 'aired_from', 'aired_to']] = \
-            dataset[['mal_id', 'trailer.url', 'approved', 'title_english', 'aired.from', 'aired.to']]
+        dataset = dataset.rename(columns={
+            'mal_id': 'anime_id',
+            'trailer.url': 'trailer_link',
+            'approved': 'validated',
+            'title_english': 'title',
+            'aired.from': 'aired_from',
+            'aired.to': 'aired_to'
+        })
 
         dataset['title'] = dataset['title'].apply(clean_title) # no lambda because of a row is none, code will drop the entire row
 

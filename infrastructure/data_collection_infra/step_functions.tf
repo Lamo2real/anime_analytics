@@ -8,7 +8,7 @@ resource "aws_sfn_state_machine" "wrokflow" {
   definition = jsonencode(
     {
       Comment = "STFU LOGIC: ths is the state machine for etxracting from API, and loading to S3"
-      StartAt = "RunLambda"
+      StartAt = "APIWait"
       States = {
 
         APIWait = {
