@@ -89,7 +89,7 @@ jobs:
                 -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
                 -var="current_developer_name=${{secrets.DEVELOPER_NAME}}" \
                 -var="ecr_repository=${{secrets.ECR_REPO_NAME}}" \
-                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:latest"
+                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:v1"
 
           - name: deploy the infra configuration
             run: |
@@ -100,6 +100,6 @@ jobs:
                 -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
                 -var="current_developer_name=${{secrets.DEVELOPER_NAME}}" \
                 -var="ecr_repository=${{secrets.ECR_REPO_NAME}}" \
-                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:latest"
+                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:v1"
 
 
