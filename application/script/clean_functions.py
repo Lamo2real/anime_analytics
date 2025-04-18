@@ -47,7 +47,7 @@ def convert_to_minutes(duration, page):
 
         else:
             logging.warning(f'duration format wasnt recognized: {duration}. None was returned on page: {page}')
-            return None
+            return 
     
     except Exception as e:
         logging.warning(f'something else went wrong: {e}')
