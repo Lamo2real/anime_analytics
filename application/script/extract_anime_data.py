@@ -25,7 +25,7 @@ def extract(page_number):
             json_data = response.json()
 
             if not json_data['data']:
-                logging.info(f'you have reached the end')
+                logging.warning(f'you have reached the end')
                 return json_data['data']
                 
             else:

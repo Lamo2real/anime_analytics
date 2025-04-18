@@ -43,7 +43,7 @@ def lambda_handler(event, context=None):
     NEXT_RUN_STFU =  { 'continue': True, 'page': page + 1 }
 
     # stop & reset
-    STOP_RESET_STFU = { 'continue': False, 'page': 1 }
+    # STOP_RESET_STFU = { 'continue': False, 'page': 1 }
 
     
     try:
@@ -52,15 +52,17 @@ def lambda_handler(event, context=None):
         normalized_data = pd.json_normalize(data)
 
         if not data:
-            logging.info(f'no list of data left on page: {page}')
-            return STOP_RESET_STFU
+            logging.debug('1')
+            # logging.warning(f'no list of data left on page: {page}')
+            return NEXT_RUN_STFU
         
         else:
             logging.info(f'successfully extracted data from page: {page}')
             
     except Exception as e:
-        logging.error(f'extraction from API failed on page: {page}: {e}')
-        return STOP_RESET_STFU
+        logging.debug('2')
+        # logging.error(f'extraction from API failed on page: {page}: {e}')
+        return NEXT_RUN_STFU
         
     finally:
         logging.info(f'end extraction')
@@ -72,27 +74,29 @@ def lambda_handler(event, context=None):
         df = enhance_structure(normalized_data, page)
 
         # print(df.head(20).to_string(index=False))
-        df.to_csv('test.csv', mode='a', index=False, header=(page==1))
+        # df.to_csv('test.csv', mode='a', index=False, header=(page==1))
 
         csv_logic(df, bucket_name, s3_key_path)
-
-        logging.info(f'successful data transformation for page {page}')
+        logging.debug('3 which is successful')
+        # logging.info(f'successful data transformation for page {page}')
+        
         return NEXT_RUN_STFU
 
     except Exception as e:
-        logging.error(f'error: {e}')
-        return STOP_RESET_STFU
+        logging.debug('4')
+        # logging.error(f'error: {e}')
+        return NEXT_RUN_STFU
 
     finally:
         logging.info(f'end transformation')
 
 
 
-if __name__ == "__main__":
-    """runs the function locally merely if this file is run"""
+# if __name__ == "__main__":
+#     """runs the function locally merely if this file is run"""
 
-    for i in range(1, 4):
-        lambda_handler(i)
-        time.sleep(3)
-        i+=1
+#     for i in range(1135, 1140):
+#         lambda_handler(i)
+#         time.sleep(3)
+#         i+=1
 
