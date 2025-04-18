@@ -21,6 +21,7 @@ resource "aws_sfn_state_machine" "wrokflow" {
             Type = "Task"
             Resource = "${aws_lambda_function.extract_anime_data.arn}"
             ResultPath = "$.stfuResult"
+            OutputPath = "$.stfuResult"
             Next = "CheckPageStatus"
         },
 
