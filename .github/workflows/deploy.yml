@@ -41,7 +41,7 @@ jobs:
           run: echo "ECR_IMAGE_URI=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:v1" > $GITHUB_ENV
   
         - name: build docker image compatible with ECR image URI
-          run: docker build --no-cache -t $ECR_IMAGE_URI .
+          run: docker build --no-cache --platform linux/arm64 -t $ECR_IMAGE_URI .
   
         - name: push docker image to ECR repository
           run: docker push $ECR_IMAGE_URI
