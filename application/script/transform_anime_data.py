@@ -17,8 +17,8 @@ def lambda_handler(event, context=None):
 
     try:
         load_dotenv()
-        bucket_name = os.environ.get('BUCKET_NAME', 'anime-s3-data-lake-dump') #referring to lambda environment variables 
-        s3_key_path = os.environ.get('S3_KEY_PATH', 'extracted-anime-data/semi-processed-data.csv') #referring to lambda environment variables 
+        bucket_name = os.environ.get('BUCKET_NAME') #referring to lambda environment variables 
+        s3_key_path = os.environ.get('S3_KEY_PATH') #referring to lambda environment variables 
 
     except KeyError as ke:
         logging.error(f'no ENVIRONMENT VARIABLES found: {ke}')
@@ -85,11 +85,11 @@ def lambda_handler(event, context=None):
 
 
 
-if __name__ == "__main__":
-    """runs the function locally merely if this file is run"""
+# if __name__ == "__main__":
+#     """runs the function locally merely if this file is run"""
 
-    for i in range(1, 3):
-        lambda_handler(i)
-        time.sleep(3)
-        i+=1
+#     for i in range(1, 3):
+#         lambda_handler(i)
+#         time.sleep(3)
+#         i+=1
 
