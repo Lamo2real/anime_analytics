@@ -72,7 +72,7 @@ def lambda_handler(event, context=None):
         df = enhance_structure(normalized_data, page)
 
         # print(df.head(20).to_string(index=False))
-        # df.to_csv('test.csv', mode='a', index=False, header=(page==1))
+        df.to_csv('test.csv', mode='a', index=False, header=(page==1))
 
         csv_logic(df, bucket_name, s3_key_path)
 
@@ -91,7 +91,7 @@ def lambda_handler(event, context=None):
 if __name__ == "__main__":
     """runs the function locally merely if this file is run"""
 
-    for i in range(1, 3):
+    for i in range(1, 4):
         lambda_handler(i)
         time.sleep(3)
         i+=1
