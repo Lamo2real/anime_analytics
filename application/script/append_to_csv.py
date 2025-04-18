@@ -29,20 +29,24 @@ def csv_logic(df, bucket_name, key_path):
                 column_integers = [ 'episodes', 'duration', 'genre_id_1', 'genre_id_2', 'genre_id_3' ]
                 for col in column_integers:
                     if col in df_combined.columns:
-                        df_combined[col] = df_combined[col].astype('Int64')
+                        try:
+                            df_combined[col] = df_combined[col].astype(float).round().astype("Int64")
+                        except (ValueError,TypeError):
+                            logging.warning(f'Could not convert {col} to Int64. Keeping original dtype.')
+                            continue
+                        
 
                 
 
             except ClientError as ce:
                 if ce.response['Error']['Code'] == 'NoSuchKey':
                     logging.warning(f'no existing CSV file was in S3. Creating a new CSV file at {key_path}')
-                    df_combined = df # merely if no existing data is true
                 else:
                     raise ce
 
     except Exception as e:
         logging.error(f'could not read or join any CSV: {e}')
-        df_combined = df # just in case...
+
 
 
     try:
