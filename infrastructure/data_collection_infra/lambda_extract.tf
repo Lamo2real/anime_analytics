@@ -6,6 +6,7 @@ locals {
 module "iam" {
   source           = "./iam"
    
+  sfn_arn          = aws_sfn_state_machine.wrokflow.arn
   s3_bucket_arn    = aws_s3_bucket.jikan_data_lake.arn  
   kms_arn          = aws_kms_key.anime_kms_key.arn
   function_arn     = aws_lambda_function.extract_anime_data.arn
@@ -18,8 +19,8 @@ resource "aws_lambda_function" "extract_anime_data" {
   package_type  = "Image"
   image_uri     = var.docker_image_uri
   role          = module.iam.lambda_execution_role_arn
-  timeout       = 120
-  memory_size   = 512
+  timeout       = 480
+  memory_size   = 1024
   architectures = ["x86_64"]
 
   environment {

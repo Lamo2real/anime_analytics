@@ -29,7 +29,7 @@ def enhance_structure(dataset, page):
         )
         dataset['studio_id'] = dataset['studios'].apply(
             
-            lambda studio: studio[0]['mal_id'] if isinstance(studio, list) and len(studio) else None
+            lambda studio: int(studio[0]['mal_id']) if isinstance(studio, list) and len(studio) else pd.NA
         )
 
 
@@ -43,11 +43,11 @@ def enhance_structure(dataset, page):
         dataset[['aired_from', 'aired_to']] = dataset[['aired_from', 'aired_to']].apply(lambda x: x.str[:10])
 
         #handle episodes column data cleaning
-        dataset['episodes'] = dataset['episodes'].apply(lambda x: None if pd.isna(x) else int(x))
+        dataset['episodes'] = dataset['episodes'].apply(lambda x: pd.NA if pd.isna(x) else int(x))
 
         # clean data in duration column
         if 'duration' in dataset.columns:
-            dataset['duration'] = dataset['duration'].apply(lambda x: None if pd.isna(x) else convert_to_minutes(x, page))
+            dataset['duration'] = dataset['duration'].apply(lambda x: pd.NA if pd.isna(x) else convert_to_minutes(x, page))
         else:
             logging.error(f'no duration column was found')
 
