@@ -43,7 +43,7 @@ def lambda_handler(event, context=None):
     NEXT_RUN_STFU =  { 'continue': True, 'page': page + 1 }
 
     # stop & reset
-    # STOP_RESET_STFU = { 'continue': False, 'page': 1 }
+    STOP_RESET_STFU = { 'continue': False, 'page': 1 }
 
     
     try:
@@ -52,16 +52,14 @@ def lambda_handler(event, context=None):
         normalized_data = pd.json_normalize(data)
 
         if not data:
-            logging.debug('1')
-            # logging.warning(f'no list of data left on page: {page}')
-            return NEXT_RUN_STFU
+            logging.warning(f'no list of data left on page: {page}')
+            return STOP_RESET_STFU
         
         else:
             logging.info(f'successfully extracted data from page: {page}')
             
     except Exception as e:
-        logging.debug('2')
-        # logging.error(f'extraction from API failed on page: {page}: {e}')
+        logging.error(f'extraction from API failed on page: {page}: {e}')
         return NEXT_RUN_STFU
         
     finally:
@@ -72,8 +70,6 @@ def lambda_handler(event, context=None):
         logging.info(f'start transformation')
         normalized_data = pd.json_normalize(data)
         df = enhance_structure(normalized_data, page)
-        # print(df.head(20).to_string(index=False))
-        # df.to_csv('test.csv', mode='a', index=False, header=(page==1))
 
         csv_logic(df, bucket_name, s3_key_path)
         return NEXT_RUN_STFU
