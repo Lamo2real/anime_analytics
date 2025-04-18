@@ -21,7 +21,7 @@ resource "aws_lambda_function" "extract_anime_data" {
   role          = module.iam.lambda_execution_role_arn
   timeout       = 480
   memory_size   = 1024
-  architectures = ["x86_64"]
+  architectures = ["arm64"]
 
   environment {
     variables = {
