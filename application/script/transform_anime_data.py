@@ -72,19 +72,14 @@ def lambda_handler(event, context=None):
         logging.info(f'start transformation')
         normalized_data = pd.json_normalize(data)
         df = enhance_structure(normalized_data, page)
-
         # print(df.head(20).to_string(index=False))
         # df.to_csv('test.csv', mode='a', index=False, header=(page==1))
 
         csv_logic(df, bucket_name, s3_key_path)
-        logging.debug('3 which is successful')
-        # logging.info(f'successful data transformation for page {page}')
-        
         return NEXT_RUN_STFU
 
     except Exception as e:
-        logging.debug('4')
-        # logging.error(f'error: {e}')
+        logging.error(f'error: {e}')
         return NEXT_RUN_STFU
 
     finally:
@@ -92,11 +87,11 @@ def lambda_handler(event, context=None):
 
 
 
-# if __name__ == "__main__":
-#     """runs the function locally merely if this file is run"""
+if __name__ == "__main__":
+    """runs the function locally merely if this file is run"""
 
-#     for i in range(1135, 1140):
-#         lambda_handler(i)
-#         time.sleep(3)
-#         i+=1
+    for i in range(1, 11):
+        lambda_handler(i)
+        time.sleep(3)
+        i+=1
 
