@@ -52,11 +52,10 @@ def lambda_handler(event, context=None):
         normalized_data = pd.json_normalize(data)
 
         if not data:
-            logging.warning(f'no list of data left on page: {page}')
+            logging.info(f'no list of data left on page: {page}')
             return STOP_RESET_STFU
         
-        else:
-            logging.info(f'successfully extracted data from page: {page}')
+        logging.info(f'successfully extracted data from page: {page}')
             
     except Exception as e:
         logging.error(f'extraction from API failed on page: {page}: {e}')
@@ -72,7 +71,6 @@ def lambda_handler(event, context=None):
         df = enhance_structure(normalized_data, page)
 
         csv_logic(df, bucket_name, s3_key_path)
-        return NEXT_RUN_STFU
 
     except Exception as e:
         logging.error(f'error: {e}')
@@ -86,7 +84,7 @@ def lambda_handler(event, context=None):
 if __name__ == "__main__":
     """runs the function locally merely if this file is run"""
 
-    for i in range(1, 11):
+    for i in range(1, 303):
         lambda_handler(i)
         time.sleep(3)
         i+=1

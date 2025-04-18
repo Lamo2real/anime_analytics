@@ -2,6 +2,7 @@
 import emoji
 import re
 import logging
+import pandas as pd
 
 
 
@@ -44,13 +45,15 @@ def convert_to_minutes(duration, page):
             total_minutes = round(total_minutes_exact, 2)
 
             return total_minutes 
-
-        else:
-            logging.warning(f'duration format wasnt recognized: {duration}. None was returned on page: {page}')
-            return 
+        
+        elif total_minutes is not None:
+            return int(round(total_minutes))
+        
+        return pd.NA
     
     except Exception as e:
         logging.warning(f'something else went wrong: {e}')
+        return pd
     
 
 def clean_title(text):
