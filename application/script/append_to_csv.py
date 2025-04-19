@@ -41,14 +41,14 @@ def csv_logic(df, bucket_name, key_path):
                         logging.warning(f'Could not convert {col} to Int32. Keeping original dtype.')
                         continue
 
-            # making sure the csv is updated based on new data (deduplicated)
-            csv_buffer = StringIO() #save data in-memeory (lambda usually is set to 512mb RAM)
-            df_combined.to_csv(csv_buffer, index=False)
-            s3_client.put_object(
-                Bucket=bucket_name,
-                Key=key_path,
-                Body=csv_buffer.getvalue()
-            )
+                # making sure the csv is updated based on new data (deduplicated)
+                csv_buffer = StringIO() #save data in-memeory (lambda usually is set to 512mb RAM)
+                df_combined.to_csv(csv_buffer, index=False)
+                s3_client.put_object(
+                    Bucket=bucket_name,
+                    Key=key_path,
+                    Body=csv_buffer.getvalue()
+                )
 
         except Exception as e:
             logging.error(f'could not read or join any CSV: {e}')
