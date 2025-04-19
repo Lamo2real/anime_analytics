@@ -21,7 +21,7 @@ def enhance_structure(dataset, page):
         )
         for i in range(1, 4):
             dataset[f'genre_id_{i}'] = dataset['genres'].apply(
-            lambda genres: int(float(genres[i-1]['mal_id'])) if isinstance(genres, list) and len(genres) > i-1 and 'mal_id' in genres[i-1] else pd.NA
+            lambda genres: genres[i-1]['mal_id'] if isinstance(genres, list) and len(genres) > i-1 and 'mal_id' in genres[i-1] else None
         )
 
         dataset['studio_name'] = dataset['studios'].apply(
@@ -29,7 +29,7 @@ def enhance_structure(dataset, page):
         )
         dataset['studio_id'] = dataset['studios'].apply(
             
-            lambda studio: int(float(studio[0]['mal_id'])) if isinstance(studio, list) and len(studio) else pd.NA
+            lambda studio: studio[0]['mal_id'] if isinstance(studio, list) and len(studio) else None
         )
 
 
