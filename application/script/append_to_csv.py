@@ -35,15 +35,6 @@ def csv_logic(df, bucket_name, key_path):
                 else:
                     raise ce
 
-            for col in ['episodes', 'duration', 'genre_id_1', 'genre_id_2', 'genre_id_3']:
-                if col in df_combined.columns:
-                    try:
-                        df_combined.loc[col] = df_combined[col].astype(str)
-                        df_combined.loc[col] = df_combined[col].replace(['', 'NA', 'nan', 'None', 'NaN', 'null'], pd.NA)
-                        df_combined.loc[col] = pd.to_numeric(df_combined[col], errors='coerce').astype("Int32")
-                    except (ValueError, TypeError):
-                        logging.warning(f'Could not convert {col} to Int32. Keeping original dtype.')
-                        continue
 
             try:
                 # making sure the csv is updated based on new data (deduplicated)
