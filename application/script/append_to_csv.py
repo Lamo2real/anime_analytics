@@ -15,15 +15,19 @@ def csv_logic(df, bucket_name, key_path):
         # deduplication section
         try:
             s3_client = boto3.client('s3') #faster performance, (py interpreter checks for the local value first then gloabl)
-            df_combined = df #just incase it fails during next try
+            df_combined = df.copy() #just incase it fails during next try
 
             #### merge existing data with new API fetched data ####
             try:
                 s3_object = s3_client.get_object(Bucket=bucket_name, Key=key_path)
                 data_from_cloud =s3_object['Body'].read().decode('utf-8')
-                df_existing = pd.read_csv(StringIO(data_from_cloud))
-                df_combined = pd.concat([df_existing, df], ignore_index=True) # ignore incremental id, 'concat' kinda acts like a SQL join in a way
-                df_combined.drop_duplicates(subset=['anime_id', 'title'], inplace=True) # inplace indicates that it modifies the existing dataframe and doesnt create a new one
+
+                if data_from_cloud.strip():
+                    df_existing = pd.read_csv(StringIO(data_from_cloud))
+                    df_combined = pd.concat([df_existing, df], ignore_index=True) # ignore incremental id, 'concat' kinda acts like a SQL join in a way
+                    df_combined.drop_duplicates(subset=['anime_id', 'title'], inplace=True, keep='last') # inplace indicates that it modifies the existing dataframe and doesnt create a new one
+                else:
+                    logging.info(f'empty file found on {key_path}, overwriting with new data')
 
             except ClientError as ce:
                 if ce.response['Error']['Code'] == 'NoSuchKey':
@@ -34,13 +38,14 @@ def csv_logic(df, bucket_name, key_path):
             for col in ['episodes', 'duration', 'genre_id_1', 'genre_id_2', 'genre_id_3']:
                 if col in df_combined.columns:
                     try:
-                        df_combined.loc[:, col] = df_combined[col].astype(str)
-                        df_combined.loc[:, col] = df_combined[col].replace(['', 'NA', 'nan', 'None'], pd.NA)
-                        df_combined.loc[:, col] = pd.to_numeric(df_combined[col], errors='coerce').astype("Int32")
+                        df_combined.loc[col] = df_combined[col].astype(str)
+                        df_combined.loc[col] = df_combined[col].replace(['', 'NA', 'nan', 'None', 'NaN', 'null'], pd.NA)
+                        df_combined.loc[col] = pd.to_numeric(df_combined[col], errors='coerce').astype("Int32")
                     except (ValueError, TypeError):
                         logging.warning(f'Could not convert {col} to Int32. Keeping original dtype.')
                         continue
 
+            try:
                 # making sure the csv is updated based on new data (deduplicated)
                 csv_buffer = StringIO() #save data in-memeory (lambda usually is set to 512mb RAM)
                 df_combined.to_csv(csv_buffer, index=False)
@@ -49,9 +54,14 @@ def csv_logic(df, bucket_name, key_path):
                     Key=key_path,
                     Body=csv_buffer.getvalue()
                 )
+                return True
+            
+            except Exception as write_error:
+                logging.error(f'failed to write to S3: {write_error}')
+                raise write_error
 
         except Exception as e:
             logging.error(f'could not read or join any CSV: {e}')
-            return None
+            return False
 
 
