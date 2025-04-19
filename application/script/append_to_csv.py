@@ -15,7 +15,6 @@ def csv_logic(df, bucket_name, key_path):
         # deduplication section
         try:
             s3_client = boto3.client('s3') #faster performance, (py interpreter checks for the local value first then gloabl)
-            
 
             #### merge existing data with new API fetched data ####
             try:

@@ -23,21 +23,18 @@ def convert_to_minutes(duration, page):
             minutes = re.findall(r'(\d+)\s*min', duration)
             total_minutes = int(hours[0]) * 60 + int(minutes[0]) if hours and minutes else 0
 
-            # logging.info(f'coverted {int(hours[0])}h + {int(minutes[0])}min = {total_minutes}min')
             return total_minutes
 
         elif 'min' in duration:
             minutes = re.findall(r'(\d+)\s*min', duration)
             total_minutes = int(minutes[0]) if minutes else 0
 
-            # logging.info(f'no hours, but {total_minutes}min')
             return total_minutes
 
         elif 'hr' in duration:
             hours = re.findall(r'(\d+)\s*hr', duration)
             total_minutes = int(hours[0]) * 60 if hours else 0
 
-            # logging.info(f'no minutes, but converted {hours}h into {total_minutes}min ')
             return total_minutes
         
         elif 'sec' in duration:
