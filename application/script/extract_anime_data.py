@@ -19,17 +19,14 @@ def extract(page_number):
 
     try:
         response = requests.get(url, timeout=10)
-        # print(response.content)
         if response.status_code == 200:
-            logging.info(f'{response.status_code} request was succesful')
             json_data = response.json()
 
             if not json_data['data']:
-                logging.info(f'you have reached the end')
+                logging.warning(f'you have reached the end')
                 return json_data['data']
                 
             else:
-                logging.info(f'data was found')
                 return json_data['data']
             
         else:
@@ -46,8 +43,3 @@ def extract(page_number):
     except Exception as e:
         logging.error(f'something else unrelated to HTTP request went wrong {e}')
 
-
-
-if __name__ == '__main__':
-
-    extract(1)

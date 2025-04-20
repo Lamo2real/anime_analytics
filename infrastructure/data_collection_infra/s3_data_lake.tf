@@ -15,19 +15,6 @@ resource "aws_s3_bucket_public_access_block" "name" {
   restrict_public_buckets = true
 }
 
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "jika_data_lake_encryption_config" {
-  bucket = aws_s3_bucket.jikan_data_lake.id
-
-  rule {
-    bucket_key_enabled = true
-    apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.anime_kms_key.arn
-    }
-  }
-}
-
 resource "aws_s3_bucket_policy" "jikan_data_lake_bucket_policy" {
   bucket = aws_s3_bucket.jikan_data_lake.id
 
