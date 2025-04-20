@@ -82,11 +82,11 @@ def lambda_handler(event, context=None):
 
 
 
-if __name__ == "__main__":
-    """runs the function locally merely if this file is run"""
+# if __name__ == "__main__":
+#     """runs the function locally merely if this file is run"""
 
-    for i in range(1, 500):
-        lambda_handler(i)
-        time.sleep(3)
-        i+=1
+#     for i in range(1, 500):
+#         lambda_handler(i)
+#         time.sleep(3)
+#         i+=1
 
