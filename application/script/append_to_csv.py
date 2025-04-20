@@ -19,7 +19,7 @@ def csv_logic(df, bucket_name, key_path):
             #### merge existing data with new API fetched data ####
             try:
                 s3_object = s3_client.get_object(Bucket=bucket_name, Key=key_path)
-                data_from_cloud =s3_object['Body'].read().decode('utf-8')
+                data_from_cloud = s3_object['Body'].read().decode('utf-8')
 
                 if data_from_cloud:
                     df_existing = pd.read_csv(StringIO(data_from_cloud))

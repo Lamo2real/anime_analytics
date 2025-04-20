@@ -10,6 +10,9 @@ on:
 jobs:
   docker-image-to-ecr:
     runs-on: ubuntu-24.04
+
+    outputs:
+      ecr_image_uri: ${{steps.set-ecr-image.outputs.image_uri}}
   
     defaults:
         run:
@@ -33,12 +36,16 @@ jobs:
           run: |
             aws ecr batch-delete-image \
               --repository-name ${{secrets.ECR_REPO_NAME}} \
-              --image-ids imageTag=v2 \
+              --image-ids imageTag=v3 \
               --region ${{secrets.INFRASTRCUTURE_REGION}} \
               --no-cli-pager || true
 
-        - name: set image URI to a github env variable
-          run: echo "ECR_IMAGE_URI=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:v2" > $GITHUB_ENV
+        - name: set image URI to a github env variable and output
+          id: set-ecr-image
+          run: |
+            image_placeholder="${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:v3"
+            echo "ECR_IMAGE_URI=$image_placeholder" > $GITHUB_ENV
+            echo "image_uri=$image_placeholder" > $GITHUB_OUTPUT
   
         - name: build docker image compatible with ECR image URI
           run: docker build --no-cache -t $ECR_IMAGE_URI .
@@ -89,7 +96,7 @@ jobs:
                 -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
                 -var="current_developer_name=${{secrets.DEVELOPER_NAME}}" \
                 -var="ecr_repository=${{secrets.ECR_REPO_NAME}}" \
-                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:v2"
+                -var="docker_image_uri=${{ needs.docker-image-to-ecr.outputs.ecr_image_uri }}"
 
           - name: deploy the infra configuration
             run: |
@@ -100,6 +107,6 @@ jobs:
                 -var="s3_path_to_processed_data_file=${{secrets.S3_KEY_PATH_TO_FILE}}" \
                 -var="current_developer_name=${{secrets.DEVELOPER_NAME}}" \
                 -var="ecr_repository=${{secrets.ECR_REPO_NAME}}" \
-                -var="docker_image_uri=${{secrets.DEVELOPER_ACCOUNT_ID}}.dkr.ecr.${{secrets.INFRASTRCUTURE_REGION}}.amazonaws.com/${{secrets.ECR_REPO_NAME}}:v2"
+                -var="docker_image_uri=${{ needs.docker-image-to-ecr.outputs.ecr_image_uri }}"
 
 
