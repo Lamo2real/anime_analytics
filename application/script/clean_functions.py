@@ -17,7 +17,6 @@ def convert_to_minutes(duration, page):
     """convert hours & minutes to integers in minutes"""
 
     try:
-        total_minutes = 0
         if 'hr' in duration and 'min' in duration:
             hours = re.findall(r'(\d+)\s*hr', duration)
             minutes = re.findall(r'(\d+)\s*min', duration)

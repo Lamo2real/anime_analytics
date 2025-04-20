@@ -6,10 +6,10 @@ FROM public.ecr.aws/lambda/python:3.11
 COPY requirements.txt ${LAMBDA_TASK_ROOT}
 
 # same as above
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install r requirements.txt
 
 # copy every python file into the lambda function directory inside the container
-COPY ./script/*.py ${LAMBDA_TASK_ROOT}
+COPY ./script/* ${LAMBDA_TASK_ROOT}
 
 # the first value before the "." is the filename where the function that is called is located in,
 # and the second is the function-name which should be invoked when lambda is executed.

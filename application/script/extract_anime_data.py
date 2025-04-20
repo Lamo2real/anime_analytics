@@ -43,8 +43,3 @@ def extract(page_number):
     except Exception as e:
         logging.error(f'something else unrelated to HTTP request went wrong {e}')
 
-
-
-if __name__ == '__main__':
-
-    extract(1)

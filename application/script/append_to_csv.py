@@ -24,7 +24,7 @@ def csv_logic(df, bucket_name, key_path):
                 if data_from_cloud:
                     df_existing = pd.read_csv(StringIO(data_from_cloud))
                     df_combined = pd.concat([df_existing, df], ignore_index=True) # ignore incremental id, 'concat' kinda acts like a SQL join in a way
-                    df_combined.drop_duplicates(subset=['anime_id', 'title'], inplace=True, keep='last') # inplace indicates that it modifies the existing dataframe and doesnt create a new one
+                    # df_combined.drop_duplicates(subset=['anime_id', 'title'], inplace=True, keep='last') # inplace indicates that it modifies the existing dataframe and doesnt create a new one
                 else:
                     df_combined = df
                     logging.info(f'empty file found on {key_path}, overwriting with new data')
@@ -48,7 +48,8 @@ def csv_logic(df, bucket_name, key_path):
                         Bucket=bucket_name,
                         Key=key_path,
                         Body=csv_buffer.getvalue()
-                    )
+                    ) 
+                    # return { 'continue': True }
                     
                 
                 else:
