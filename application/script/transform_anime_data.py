@@ -59,7 +59,7 @@ def lambda_handler(event, context=None):
             
     except Exception as e:
         logging.error(f'extraction from API failed on page: {page}: {e}')
-        return NEXT_RUN_STFU
+        return STOP_RESET_STFU
         
     finally:
         logging.info(f'end extraction')
@@ -71,10 +71,11 @@ def lambda_handler(event, context=None):
         df = enhance_structure(normalized_data, page)
 
         csv_logic(df, bucket_name, s3_key_path)
+        return NEXT_RUN_STFU
 
     except Exception as e:
         logging.error(f'error: {e}')
-        return NEXT_RUN_STFU
+        return STOP_RESET_STFU
 
     finally:
         logging.info(f'end transformation')
