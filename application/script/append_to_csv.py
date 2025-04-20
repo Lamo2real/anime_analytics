@@ -49,11 +49,11 @@ def csv_logic(df, bucket_name, key_path):
                         Key=key_path,
                         Body=csv_buffer.getvalue()
                     )
-                    return
+                    
                 
                 else:
                     logging.warning("df_combined does not exist or is empty. Skipping upload.")
-                    return 
+                    
             
             except Exception as write_error:
                 logging.error(f'failed to write to S3: {write_error}')
@@ -61,6 +61,6 @@ def csv_logic(df, bucket_name, key_path):
 
         except Exception as e:
             logging.error(f'error message: {e}')
-            return
+            
 
 
