@@ -4,7 +4,14 @@
 # Anime Analytics
 
 ## This is a ETL pipeline for extracting, and doing some light data manipulation, then loading it to a data lake.
-This project is an automated ETL pipeline that will take semi-structured data from an API called jikan, and extract and load it into a data lake in the AWS Cloud (Amazon S3), then transform it using pandas and load it to snowflake for analytics
+This project is an automated ETL pipeline that will take semi-structured data from an API called jikan, and extract and load it into a data lake in the AWS Cloud (Amazon S3), then transform it using pandas and load it to snowflake for analytics </br>
+**Part 1** </br>
+API -> Lambda -> S3
+</br>
+</br>
+**Part 2**</br>
+S3 -> Glue -> Snowflake
+
 
 </br>
 
@@ -20,7 +27,8 @@ For this project I have leveraged AWS Cloud where I host my infrastructure so if
 3. [Installation](#installation)
 4. [Solution Architecture](#solution-architecture)
 5. [Orchestration](#orchestration)
-6. [Contact](#contact)
+6. [Application](#application)
+7. [Contact](#contact)
 
 
 </br>
@@ -76,6 +84,7 @@ Here, the module with source is in the lambda_extract.tf and the value are passe
 - Terrafrom HCL `(version: 1.9.5)`
 - Python        `(version: 3.13.2)`
 - AWS CLI       `(version: 2.24.20)`
+- Docker CLI    `(version: 28.0.4)`
 - Git           `(version: 2.48.1)` *make sure to create an ssh-key in order to be able to clone the repository securely via the shell*
 - CI/CD pipeline *i chose GitHub Actions but there are so many more, the only important part is to really understand the operating system of choice*
 
@@ -110,9 +119,15 @@ pip install -r dev_requirements.txt
 
 ![step functions workflow](images/step-functions-workflow.png)
 </br>
-*this is my AWS Step functions Orchestration workflow defined in json, but as you cann see it is vizualized from AWS Console*
+*this is my AWS Step functions Orchestration workflow defined in json, but as you can see it is vizualized from AWS Console*
 </br>
 </br>
+
+
+## Application
+The baseline is that I am leveraging a linear way of programming also known as a Procedural Paradigm. </br>
+Application is concluded of one main/initialazer function called `lambda_handler` in `transform_anime_data.py` to start the data trsnformation. The entire `./script` directory has all python codebase for docker to create an image of. Docker copies and installs the `requirements.txt` in the same directory `Dockerfile` is in.
+
 
 ## Contact
 For questions about the project, feel free to contact me on **lamochi02@gmail.com**.
