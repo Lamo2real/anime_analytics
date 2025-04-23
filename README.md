@@ -9,7 +9,7 @@ This project is an automated ETL pipeline that will take semi-structured data fr
 API -> Lambda -> S3
 </br>
 </br>
-**Part 2**</br>
+**Part 2** (another GitHub repository)</br>
 S3 -> Glue -> Snowflake
 
 
