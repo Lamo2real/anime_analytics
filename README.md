@@ -16,7 +16,7 @@ S3 -> Glue -> Snowflake
 </br>
 
 #### OBS!!! 
-For this project I have leveraged AWS Cloud where I host my infrastructure so if you want to follow along you will need to create an AWS Account with an user that has programmatic access and can manage the console.
+this projects follows a cloud native solution on AWS, so if you want to follow along you will need to create an AWS Account with an user that has programmatic access and can manage the console.
 
 
 </br>
